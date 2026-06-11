@@ -1,0 +1,99 @@
+<!--
+  exampleSite override: slots/postView/bottom.html
+  Giscus reference implementation for the Slotify Slots system (SPA). Giscus is
+  GitHub-native (comments ARE GitHub Discussions) — free, account-free for the
+  site owner, and privacy-friendly — a natural fit for this GitHub-Pages demo.
+  It declares the thread container (x-template) and listens for two Slotify
+  events: `slotify:slot` (a fresh giscus iframe per article across SPA nav — the
+  page identity arrives in ctx.pageIdentifier) and `slotify:theme` (live light/dark
+  re-sync). It never reads Vue/Vuetify internals — initial mode comes from
+  `ctx.theme.mode`, live changes from `slotify:theme` — consuming only the slot
+  contract. siteConfig is injected synchronously, so the mount ctx is fully
+  populated even on a direct deep-link.
+
+  Config is data-driven via [params.giscus] in hugo.toml (no code change to
+  re-point providers). A Disqus alternative is also supported. This file is a
+  site-root-only customization — the theme itself is untouched.
+-->
+<!-- Slot-scoped i18n: registered under this slot's namespace, so the heading is
+     translatable with the slot (no theme edit). ctx.t resolves it. -->
+<script type="application/json" data-slotify-i18n="Slotify.slots.postView.bottom">
+{ "en": { "title": "Comments" }, "zh": { "title": "討論" } }
+</script>
+
+<script type="text/x-template" id="slot-postView-bottom-template">
+  <!-- The comments are a distinct block, so wrap them in the theme's glass card
+       using CSS (glass-panel + --radius-lg) rather than the BaseSurface Vue
+       component, which is not slot-registered. The <h2> heading makes this a
+       proper "Comments" section with its own landmark in the page heading
+       outline. The Vue mustache is Hugo-escaped ({{ "{{" }}…{{ "}}" }}) so Hugo emits it for Vue. -->
+  <div class="mt-12 glass-panel pa-6 pa-sm-8" style="border-radius: var(--radius-lg);">
+    <h2 class="text-h6 font-weight-bold mb-3">{{ "{{" }} ctx.t('title') {{ "}}" }}</h2>
+    <v-divider class="mb-6"></v-divider>
+    <div class="giscus"></div>
+  </div>
+</script>
+
+<script>
+  (() => {
+    const repo = '{{ site.Params.giscus.repo | default "" }}';
+    const scope = {{ site.Params.giscus.scope | default (slice "/posts/") | jsonify | safeJS }};
+
+    // Map Slotify's semantic mode -> a giscus theme. We use the `noborder_*`
+    // variants so giscus drops its OWN frame and sits cleanly inside the glass
+    // card above (no double border).
+    const giscusTheme = (mode) => mode === 'dark' ? 'noborder_dark' : 'noborder_light';
+
+    // Live re-theme the loaded iframe when Slotify's mode changes. The slot
+    // bridge broadcasts slotify:theme with a semantic { mode } ('light'|'dark'),
+    // so we never peek at the DOM class or Vuetify. Without this the iframe keeps
+    // its load-time theme and toggling to dark leaves the thread unreadable.
+    window.addEventListener('slotify:theme', (event) => {
+      const frame = document.querySelector('iframe.giscus-frame');
+      if (!frame || !frame.contentWindow) return;
+      frame.contentWindow.postMessage(
+        { giscus: { setConfig: { theme: giscusTheme(event.detail.mode) } } }, 'https://giscus.app'
+      );
+    });
+
+    window.addEventListener('slotify:slot', (event) => {
+      const { id, phase, ctx, el } = event.detail;
+      if (id !== 'Slotify.slots.postView.bottom') return;
+      // PostView is keyed by route, so navigating between posts always remounts
+      // with a fresh, empty .giscus container — inject a clean giscus per mount.
+      // (Unlike Disqus there is no single global script to reset: each mount gets
+      // its own iframe, so no session-level "injected once" guard is needed.)
+      if (phase !== 'mount') return;
+      if (!repo) return; // opt-in guard (mirrors the Disqus shortname guard)
+
+      const pageIdentifier = (ctx && ctx.pageIdentifier) || window.location.pathname;
+      const isEnabled = scope.some((prefix) => pageIdentifier.startsWith(prefix));
+      // Hide the whole slot wrapper (the glass card), not just the inner thread,
+      // so an out-of-scope page shows no empty card. `el` is the slot's root.
+      if (el) el.style.display = isEnabled ? '' : 'none';
+      if (!isEnabled) return;
+
+      const mount = el && el.querySelector('.giscus');
+      if (!mount || mount.querySelector('iframe, script')) return; // never double-inject
+
+      const s = document.createElement('script');
+      s.src = 'https://giscus.app/client.js';
+      s.async = true;
+      s.crossOrigin = 'anonymous';
+      s.setAttribute('data-repo', repo);
+      s.setAttribute('data-repo-id', '{{ site.Params.giscus.repoId }}');
+      s.setAttribute('data-category', '{{ site.Params.giscus.category | default "Announcements" }}');
+      s.setAttribute('data-category-id', '{{ site.Params.giscus.categoryId }}');
+      s.setAttribute('data-mapping', '{{ site.Params.giscus.mapping | default "pathname" }}');
+      s.setAttribute('data-strict', '1');
+      s.setAttribute('data-reactions-enabled', '1');
+      s.setAttribute('data-emit-metadata', '0');
+      s.setAttribute('data-input-position', 'top');
+      // Initial mode from the slot contract (ctx.theme), not any DOM/Vuetify
+      // class; the slotify:theme listener above keeps it synced on later toggles.
+      s.setAttribute('data-theme', giscusTheme((ctx.theme && ctx.theme.mode) || 'light'));
+      s.setAttribute('data-lang', 'en');
+      mount.appendChild(s);
+    });
+  })();
+</script>

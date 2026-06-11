@@ -1,0 +1,20 @@
+{
+  "css/google-fonts.css": "5e24688e67a981a002428326a28d91fd29ad0afbc176855a5928ab32029bfdbf",
+  "css/materialdesignicons.min.css": "03fe3caba05e65b14e4035139eee89b12be87cd0bcf342ac3886770eec3a9962",
+  "css/vuetify.min.css": "9cd94afba28e8c4d0c813d48e45c3e7599e47694a6f13061686cc218ee2afb92",
+  "fonts/google-font-1.woff2": "ca157063339ac4ad418f214f3abfed119b0798ab4d377386ce5c9e5a7a435ebd",
+  "fonts/google-font-2.woff2": "71d5ee93cc1e9f1d520a3a8b66456de18c7879d8df09d57fcd2eaff75fef0075",
+  "fonts/google-font-3.woff2": "6e9e020a25f9b56d418f2c085b1d3c09725a4da23fe693a5b463064606732190",
+  "fonts/google-font-4.woff2": "1be3448e292fbf05ffe176fe1e43f135013d50b1e7d324ad1a558f623d3bb6f6",
+  "fonts/google-font-5.woff2": "5c66f9e07e90c6d4ac4922cc68d60de26c17b1858e677fb5e603fce3952b3ff2",
+  "fonts/google-font-6.woff2": "34b9c504cab7a73e37b746343a449132e56cf7b5481af2cb81dc74dcff25c956",
+  "fonts/google-font-7.woff2": "3100e775e8616cd2611beecfa23a4263d7037586789b43f035236a2e6fbd4c62",
+  "fonts/google-font-8.woff2": "0f53d1c03b3918d744a843b5039001ee31695ca1e255e3914188df81beb461e9",
+  "fonts/google-font-9.woff2": "6c18d579fd87c3776be068b762cbc83fde3acb543d49eabd3ade842eb987e887",
+  "fonts/materialdesignicons-webfont.woff2": "662fefa8f2f8a95c18588d21774789c107c64e771cbe65a69af46291c4311afc",
+  "js/fuse.min.mjs": "48b32a6f94d0ba38f13b96a06e9bc6ac374afd52afa3adc427de21c97c3c75a4",
+  "js/mermaid.min.js": "70137e77bb273bb2ef972b86e8b0400cca8be53cb25bfc45911a186dc98665de",
+  "js/vue-router.global.prod.js": "d0972b879508cb6cc05d3e3cbeb20ad6a8cded561495ef9a6679ee44f91c4877",
+  "js/vue.esm-browser.prod.js": "dbc19b4671e022561a5cd2b8f73ba4f2273dac362a3277ae7b5e7ea7727d1cff",
+  "js/vuetify.min.js": "757cdb18002ad86ca4f9889afcacb45b49bf441c4d4982467370073770838dcf"
+}
