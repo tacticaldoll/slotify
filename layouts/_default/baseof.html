@@ -30,7 +30,7 @@
   <link rel="stylesheet" href="{{ "vendor/css/google-fonts.css" | relURL }}">
 
   <!-- Core Vendor CSS (Dynamic loading from data/vendor.json) -->
-  {{- range .Site.Data.vendor.css -}}
+  {{- range where .Site.Data.vendor.css "load" "ne" false -}}
   <link href="{{ (printf "vendor/%s" .dest) | relURL }}" rel="stylesheet">
   {{- end -}}
 
@@ -273,9 +273,14 @@
            size is NOT exposed here: the SPA derives it from each payload (full
            feed length in client mode, pagerTotal in static), so only the mode
            must travel as a synchronous global. */ -}}
+    {{- $features := dict "mermaid" true "math" true -}}
+    {{- with .Site.Params.features -}}
+      {{- $features = merge $features . -}}
+    {{- end -}}
     window.__SLOTIFY_CONFIG__ = {{ (dict
         "taxonomies" $taxos
         "paginationMode" (partial "func/pagination-config.html" .).mode
+        "features" $features
       ) | jsonify | safeJS }};
     // Palette (data/theme-palette.json + optional [params.palette] override,
     // deep-merged above) -> Vuetify themes (config/themes.js).
@@ -299,6 +304,9 @@
     {{ $lazy := dict }}
     {{- range where .Site.Data.vendor.js "lazy" "ne" nil -}}
     {{- $lazy = merge $lazy (dict .lazy ((printf "vendor/%s" .dest) | relURL)) -}}
+    {{- end }}
+    {{- range where .Site.Data.vendor.css "lazy" "ne" nil -}}
+    {{- $lazy = merge $lazy (dict (printf "%sCss" .lazy) ((printf "vendor/%s" .dest) | relURL)) -}}
     {{- end }}
     window.__SLOTIFY_LAZY__ = {{ $lazy | jsonify | safeJS }};
     // Default colour mode for a first visit ([params] defaultColorMode); the RAW
