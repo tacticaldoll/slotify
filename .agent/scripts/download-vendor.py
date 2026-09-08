@@ -42,13 +42,11 @@ def main():
         print(f"Downloading {file_info['url']}...")
         try:
             content = download_file(file_info['url'])
-            # NOTE: MDI's upstream CSS already references its fonts as
-            # `url("../fonts/...woff2?v=...")`, which resolves correctly from
-            # static/vendor/css/ to static/vendor/fonts/. For KaTeX CSS,
-            # upstream references `url(fonts/KaTeX_*.woff2)`, so rewrite to
-            # `url(../fonts/KaTeX_*.woff2)` to match the directory layout.
-            if file_info['dest'] == 'css/katex.min.css':
-                content = content.replace(b'url(fonts/', b'url(../fonts/')
+            # Apply any declarative transformations defined in vendor.json
+            for rw in file_info.get('rewrites', []):
+                from_bytes = rw['from'].encode('utf-8')
+                to_bytes = rw['to'].encode('utf-8')
+                content = content.replace(from_bytes, to_bytes)
 
             with open(dest_path, 'wb') as f:
                 f.write(content)

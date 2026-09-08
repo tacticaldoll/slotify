@@ -122,7 +122,13 @@
             "url": "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css",
             "dest": "css/katex.min.css",
             "load": false,
-            "lazy": "katex"
+            "lazy": "katex",
+            "rewrites": [
+                {
+                    "from": "url(fonts/",
+                    "to": "url(../fonts/"
+                }
+            ]
         }
     ],
     "js": [
