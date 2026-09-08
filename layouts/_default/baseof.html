@@ -91,7 +91,7 @@
       const roles = palette[personality][isDark ? 'dark' : 'light'];
 
       const root = document.documentElement;
-      root.classList.add(isDark ? 'v-theme--dark' : 'v-theme--light');
+      root.classList.add('slotify-js', isDark ? 'v-theme--dark' : 'v-theme--light');
 
       const p = roles.primary;
       const s = roles.secondary;
