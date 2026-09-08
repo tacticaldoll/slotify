@@ -4,8 +4,8 @@
  * CSS and JS assets on demand, and rendering each .math element inside the
  * content container.
  */
-import { loadLazyLibrary } from '../utils/lazyLoader.js';
-import { renderContentError } from '../utils/renderError.js';
+import { loadLazyLibrary } from './useLazyLibrary.js';
+import { renderContentError } from './useContentError.js';
 
 /**
  * Dynamically load KaTeX stylesheet and JavaScript bundle on demand.

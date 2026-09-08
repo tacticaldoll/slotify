@@ -7,8 +7,8 @@
  * (DOM/side-effect logic belongs in composables, not utils).
  */
 import { themeColorsForMermaid, mermaidInitConfig } from '../utils/mermaidTheme.js';
-import { loadLazyLibrary } from '../utils/lazyLoader.js';
-import { renderContentError } from '../utils/renderError.js';
+import { loadLazyLibrary } from './useLazyLibrary.js';
+import { renderContentError } from './useContentError.js';
 
 export function loadMermaid() {
   return loadLazyLibrary({

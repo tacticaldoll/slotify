@@ -1,7 +1,17 @@
 /**
- * lazyLoader.js
- * Centralized dynamic asset loader for lazy vendor libraries.
- * Injects scripts (and optional stylesheets) on-demand with singleton memoization.
+ * useLazyLibrary.js
+ * Centralized dynamic asset loader for lazy vendor libraries (e.g. Mermaid, KaTeX).
+ *
+ * Architecture & Transport Rationale:
+ * Libraries like Mermaid (~3 MB self-contained global) and KaTeX are classic vendor
+ * builds distributed without ES module exports. They cannot be imported via dynamic
+ * import() in a no-build ESM environment. This composable manages on-demand <script>
+ * (and optional <link>) injection directly into document.head with promise-based
+ * singleton memoization, ensuring concurrent callers share a single download.
+ *
+ * Failure Handling:
+ * On network or execution failure, the cached loader is evicted from the Map,
+ * allowing subsequent navigations to retry rather than being permanently stuck.
  */
 
 const loaders = new Map();

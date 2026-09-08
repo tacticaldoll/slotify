@@ -1151,8 +1151,7 @@ body .rounded-pill {
     display: inline;
 }
 
-.math[data-processed="error"],
-.math.math--error {
+.math[data-processed="error"] {
     color: rgb(var(--v-theme-error));
     background: rgba(var(--v-theme-error), 0.08);
     padding: 0.2rem 0.4rem;
