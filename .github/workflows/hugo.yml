@@ -8,9 +8,13 @@
 name: Deploy Hugo site to Pages
 
 on:
-  # Runs on pushes targeting the default branch
+  # Runs on pushes targeting main and release branches
   push:
-    branches: ["main"]
+    branches: ["main", "release/*"]
+
+  # Runs on pull requests targeting main and release branches
+  pull_request:
+    branches: ["main", "release/*"]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -35,6 +39,7 @@ defaults:
 jobs:
   # Build job
   build:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     env:
       # Pinned to the version the build was verified against; bump deliberately.
@@ -125,6 +130,7 @@ jobs:
 
   # Deployment job
   deploy:
+    if: github.ref == 'refs/heads/main'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
