@@ -48,79 +48,74 @@ export function useContentHydration() {
     });
   };
 
-  const hydrateMermaid = async (containerId, onMermaidClick) => {
+  const hydrateFeature = async ({ containerId, featureFlag, selector, load, render }) => {
     await nextTick();
     const contentDiv = document.getElementById(containerId);
     if (!contentDiv) return;
 
-    // Feature flag guard: skip if mermaid is explicitly disabled in config
+    // Feature flag guard: skip if feature is explicitly disabled in config
     const features = (window.__SLOTIFY_CONFIG__ || {}).features || {};
-    if (features.mermaid === false) return;
+    if (features[featureFlag] === false) return;
 
-    // No diagrams on this page -> never fetch the (large) Mermaid bundle.
-    const elements = contentDiv.querySelectorAll('.mermaid');
+    // No target elements on this page -> never fetch assets
+    const elements = contentDiv.querySelectorAll(selector);
     if (!elements.length) return;
 
-    // Awaited, explicit load: Mermaid is lazy (see useMermaid.loadMermaid), so the
-    // global may not be ready yet. Awaiting it guarantees the first render fires
-    // once the library arrives, rather than silently leaving diagrams as raw text
-    // until some later trigger (e.g. a theme switch) happens to re-run this.
     try {
-      await loadMermaid();
+      await load();
     } catch (err) {
       console.error(err);
       return;
     }
-    // The container may have been swapped out during the download (fast nav away).
+
+    // Container may have been swapped out during download (fast nav away)
     if (!contentDiv.isConnected) return;
+    render(contentDiv, elements);
+  };
 
-    renderDiagrams(theme.current.value);
+  const hydrateMermaid = async (containerId, onMermaidClick) => {
+    await hydrateFeature({
+      containerId,
+      featureFlag: 'mermaid',
+      selector: '.mermaid',
+      load: loadMermaid,
+      render: (contentDiv, elements) => {
+        renderDiagrams(theme.current.value);
 
-    if (onMermaidClick) {
-      elements.forEach(el => {
-        el.style.cursor = 'zoom-in';
-        el.addEventListener('click', () => {
-          const svg = el.querySelector('svg');
-          if (svg) onMermaidClick(svg.outerHTML);
-        });
-      });
-    }
+        if (onMermaidClick) {
+          elements.forEach(el => {
+            el.style.cursor = 'zoom-in';
+            el.addEventListener('click', () => {
+              const svg = el.querySelector('svg');
+              if (svg) onMermaidClick(svg.outerHTML);
+            });
+          });
+        }
 
-    // Diagrams are present (we returned early otherwise); warn if any remain
-    // unrendered shortly after, surfacing a hydration or diagram-syntax problem.
-    if (mermaidCheckTimer) clearTimeout(mermaidCheckTimer);
-    mermaidCheckTimer = setTimeout(() => {
-      mermaidCheckTimer = null;
-      const pending = contentDiv.querySelectorAll('.mermaid:not([data-processed])').length;
-      if (pending > 0) {
-        console.warn('[Slotify] ' + pending + ' Mermaid diagram(s) did not render. ' +
-          'Verify content hydration and diagram syntax.');
+        // Diagrams are present; warn if any remain unrendered shortly after
+        if (mermaidCheckTimer) clearTimeout(mermaidCheckTimer);
+        mermaidCheckTimer = setTimeout(() => {
+          mermaidCheckTimer = null;
+          const pending = contentDiv.querySelectorAll('.mermaid:not([data-processed])').length;
+          if (pending > 0) {
+            console.warn('[Slotify] ' + pending + ' Mermaid diagram(s) did not render. ' +
+              'Verify content hydration and diagram syntax.');
+          }
+        }, 1200);
       }
-    }, 1200);
+    });
   };
 
   const hydrateMath = async (containerId) => {
-    await nextTick();
-    const contentDiv = document.getElementById(containerId);
-    if (!contentDiv) return;
-
-    // Feature flag guard: skip if math is explicitly disabled in config
-    const features = (window.__SLOTIFY_CONFIG__ || {}).features || {};
-    if (features.math === false) return;
-
-    // No math formulas on this page -> never fetch KaTeX assets.
-    const elements = contentDiv.querySelectorAll('.math');
-    if (!elements.length) return;
-
-    try {
-      await loadKatex();
-    } catch (err) {
-      console.error(err);
-      return;
-    }
-
-    if (!contentDiv.isConnected) return;
-    renderMath(contentDiv);
+    await hydrateFeature({
+      containerId,
+      featureFlag: 'math',
+      selector: '.math',
+      load: loadKatex,
+      render: (contentDiv) => {
+        renderMath(contentDiv);
+      }
+    });
   };
 
   const hydrateCodeBlocks = (containerId) => {

@@ -4,9 +4,8 @@
  * CSS and JS assets on demand, and rendering each .math element inside the
  * content container.
  */
-import { t } from '../i18n.js';
-
-let katexLoad = null;
+import { loadLazyLibrary } from '../utils/lazyLoader.js';
+import { renderContentError } from '../utils/renderError.js';
 
 /**
  * Dynamically load KaTeX stylesheet and JavaScript bundle on demand.
@@ -15,38 +14,12 @@ let katexLoad = null;
  * @returns {Promise<object>} resolves with window.katex
  */
 export function loadKatex() {
-  if (typeof window.katex !== 'undefined') return Promise.resolve(window.katex);
-  if (katexLoad) return katexLoad;
-
-  const lazy = window.__SLOTIFY_LAZY__ || {};
-  const jsSrc = lazy.katex;
-  const cssHref = lazy.katexCss;
-
-  if (!jsSrc) {
-    return Promise.reject(new Error('[Slotify] KaTeX source not configured (data/vendor.json lazy entry).'));
-  }
-
-  // Ensure CSS is injected once into <head>
-  if (cssHref && !document.querySelector(`link[href="${cssHref}"]`)) {
-    const link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = cssHref;
-    document.head.appendChild(link);
-  }
-
-  katexLoad = new Promise((resolve, reject) => {
-    const script = document.createElement('script');
-    script.src = jsSrc;
-    script.async = true;
-    script.onload = () => resolve(window.katex);
-    script.onerror = () => {
-      katexLoad = null;
-      reject(new Error('[Slotify] KaTeX failed to load.'));
-    };
-    document.head.appendChild(script);
+  return loadLazyLibrary({
+    globalKey: 'katex',
+    lazyKey: 'katex',
+    label: 'KaTeX',
+    cssKey: 'katexCss'
   });
-
-  return katexLoad;
 }
 
 export function useKatex() {
@@ -84,21 +57,12 @@ export function useKatex() {
         });
         el.setAttribute('data-processed', 'true');
       } catch (err) {
-        console.warn('[Slotify] KaTeX render failed:', (err && err.message) || err);
-        el.setAttribute('data-processed', 'error');
-        el.textContent = '';
-
-        const notice = document.createElement(isDisplay ? 'p' : 'span');
-        notice.className = 'math-error__title';
-        notice.setAttribute('role', 'alert');
-        notice.textContent = t('ui.mathError');
-
-        const code = document.createElement('code');
-        code.className = 'math-error__source';
-        code.textContent = formula;
-
-        el.appendChild(notice);
-        el.appendChild(code);
+        renderContentError(el, formula, err, {
+          messageKey: 'ui.mathError',
+          label: 'KaTeX',
+          isDisplay,
+          classPrefix: 'math'
+        });
       }
     });
   };

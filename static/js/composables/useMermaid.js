@@ -6,60 +6,26 @@
  * composable performs the mermaid.initialize()/render() calls and DOM mutation
  * (DOM/side-effect logic belongs in composables, not utils).
  */
-import { t } from '../i18n.js';
 import { themeColorsForMermaid, mermaidInitConfig } from '../utils/mermaidTheme.js';
+import { loadLazyLibrary } from '../utils/lazyLoader.js';
+import { renderContentError } from '../utils/renderError.js';
 
-// Mermaid is a large (~3 MB) self-contained global build, NOT an ES module — it
-// sets window.mermaid when its classic <script> runs (so it can't be `import()`ed
-// as a module). data/vendor.json marks it `lazy`, keeping it out of the eager
-// vendor load; we inject the <script> on demand here, the first time a page
-// actually has a diagram. The promise is a module-level singleton so concurrent
-// or repeat callers share one load, and callers await it (rather than the old
-// fire-and-forget `if (!window.mermaid) return` guard) so the render never
-// silently races the download.
-let mermaidLoad = null;
 export function loadMermaid() {
-  if (typeof window.mermaid !== 'undefined') return Promise.resolve(window.mermaid);
-  if (mermaidLoad) return mermaidLoad;
-  const src = (window.__SLOTIFY_LAZY__ || {}).mermaid;
-  if (!src) return Promise.reject(new Error('[Slotify] Mermaid source not configured (data/vendor.json lazy entry).'));
-  mermaidLoad = new Promise((resolve, reject) => {
-    const script = document.createElement('script');
-    script.src = src;
-    script.onload = () => resolve(window.mermaid);
-    // Reset on failure so a later page can retry rather than be stuck on a
-    // rejected singleton (e.g. a transient network error).
-    script.onerror = () => { mermaidLoad = null; reject(new Error('[Slotify] Mermaid failed to load.')); };
-    document.head.appendChild(script);
+  return loadLazyLibrary({
+    globalKey: 'mermaid',
+    lazyKey: 'mermaid',
+    label: 'Mermaid'
   });
-  return mermaidLoad;
 }
 
 export function useMermaid() {
-  /**
-   * Replace a diagram that failed to render with a visible, non-destructive
-   * fallback: a localized error notice plus the original source (so the
-   * information is never silently lost). Source is written via textContent to
-   * avoid injecting markup.
-   */
   const renderError = (el, source, err) => {
-    el.removeAttribute('data-processed');
-    el.classList.add('mermaid--error');
-    el.textContent = '';
-
-    const notice = document.createElement('p');
-    notice.className = 'mermaid-error__title';
-    notice.setAttribute('role', 'alert');
-    notice.textContent = t('ui.mermaidError');
-
-    const code = document.createElement('pre');
-    code.className = 'mermaid-error__source';
-    code.textContent = source;
-
-    el.appendChild(notice);
-    el.appendChild(code);
-
-    console.warn('[Slotify] Mermaid render failed:', (err && err.message) || err);
+    renderContentError(el, source, err, {
+      messageKey: 'ui.mermaidError',
+      label: 'Mermaid',
+      isDisplay: true,
+      classPrefix: 'mermaid'
+    });
   };
 
   /**
