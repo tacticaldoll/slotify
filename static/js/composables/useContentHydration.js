@@ -4,11 +4,13 @@
  */
 import { t } from '../i18n.js';
 import { useMermaid, loadMermaid } from './useMermaid.js';
+import { useKatex, loadKatex } from './useKatex.js';
 const { nextTick, onUnmounted } = Vue;
 
 export function useContentHydration() {
   const theme = Vuetify.useTheme();
   const { renderDiagrams } = useMermaid();
+  const { renderMath } = useKatex();
 
   // Deferred Mermaid render-check timer; cleared on unmount so a fast
   // navigation away from a post doesn't fire a stale warning against a
@@ -93,6 +95,30 @@ export function useContentHydration() {
     }, 1200);
   };
 
+  const hydrateMath = async (containerId) => {
+    await nextTick();
+    const contentDiv = document.getElementById(containerId);
+    if (!contentDiv) return;
+
+    // Feature flag guard: skip if math is explicitly disabled in config
+    const features = (window.__SLOTIFY_CONFIG__ || {}).features || {};
+    if (features.math === false) return;
+
+    // No math formulas on this page -> never fetch KaTeX assets.
+    const elements = contentDiv.querySelectorAll('.math, .katex-render');
+    if (!elements.length) return;
+
+    try {
+      await loadKatex();
+    } catch (err) {
+      console.error(err);
+      return;
+    }
+
+    if (!contentDiv.isConnected) return;
+    renderMath(contentDiv);
+  };
+
   const hydrateCodeBlocks = (containerId) => {
     nextTick(() => {
       const contentDiv = document.getElementById(containerId);
@@ -152,7 +178,8 @@ export function useContentHydration() {
             ta.select();
             const ok = document.execCommand('copy');
             document.body.removeChild(ta);
-            if (ok) { showCopied(); } else { showFailed(new Error('execCommand copy returned false')); }
+            if (ok) showCopied();
+            else showFailed(new Error('execCommand copy returned false'));
           } catch (err) {
             showFailed(err);
           }
@@ -167,6 +194,7 @@ export function useContentHydration() {
   return {
     hydrateImages,
     hydrateMermaid,
+    hydrateMath,
     hydrateCodeBlocks
   };
 }
