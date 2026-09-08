@@ -196,3 +196,27 @@ test('post content hydration (code-copy / mermaid / images) raises no errors', a
   }
   expect(errors, `console errors:\n${errors.join('\n')}`).toEqual([]);
 });
+
+test('post content math hydration renders KaTeX correctly without errors', async ({ page }) => {
+  const errors = trackErrors(page);
+  await page.goto('/posts/showcase/');
+  await waitForMount(page);
+
+  // Assert that KaTeX rendered HTML elements exist
+  const katexHtml = page.locator('.katex-html');
+  await expect(katexHtml.first()).toBeVisible({ timeout: 10_000 });
+  expect(await katexHtml.count()).toBeGreaterThan(0);
+
+  // Assert that KaTeX display block is rendered
+  const katexDisplay = page.locator('.katex-display');
+  await expect(katexDisplay.first()).toBeVisible();
+
+  // Assert that html has slotify-js class and all math elements have been processed
+  await expect(page.locator('html')).toHaveClass(/slotify-js/);
+  await expect(page.locator('.math:not([data-processed])')).toHaveCount(0);
+  await expect(page.locator('.math[data-processed="error"]')).toHaveCount(0);
+  await expect(page.locator('.math[data-processed="empty"]')).toHaveCount(0);
+
+  expect(errors, `console errors:\n${errors.join('\n')}`).toEqual([]);
+});
+

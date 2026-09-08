@@ -1,6 +1,6 @@
 name = 'slotify'
 description = 'A premium SPA theme for technical bloggers'
-version = '0.1.0'
+version = '0.2.0'
 
 # Emit /robots.txt (layouts/robots.txt) advertising the sitemap. Sitemap.xml is
 # generated automatically by Hugo; every Kind outputs HTML.
@@ -44,6 +44,15 @@ enableRobotsTXT = true
     extended = false
     min = '0.146.0'
 
+[markup]
+  [markup.goldmark]
+    [markup.goldmark.extensions]
+      [markup.goldmark.extensions.passthrough]
+        enable = true
+        [markup.goldmark.extensions.passthrough.delimiters]
+          block = [['\[', '\]'], ['$$', '$$']]
+          inline = [['\(', '\)'], ['$', '$']]
+
 # Theme default params (a consuming site overrides any in its own [params];
 # Hugo merges site params over the theme's). Full reference — values, defaults,
 # and behaviour — is the "Theme Parameters" table in the theme README.
@@ -52,4 +61,8 @@ enableRobotsTXT = true
   paginationMode = "client"    # "client" (in-memory) | "static" (Hugo paginator)
   defaultColorMode = "light"   # first-visit mode: "light" | "dark" | "auto" (OS)
   # scriptBundle = "js/slotify.bundle.js"   # opt-in single-bundle SPA entry
+
+[params.features]
+  mermaid = true
+  math    = true
 

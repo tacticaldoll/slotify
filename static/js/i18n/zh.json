@@ -28,7 +28,8 @@
     "copyCode": "複製",
     "copiedCode": "已複製！",
     "copyCodeFailed": "錯誤",
-    "mermaidError": "圖表無法渲染（語法錯誤）"
+    "mermaidError": "圖表無法渲染（語法錯誤）",
+    "mathError": "公式無法渲染（語法錯誤）"
   },
   "home": {
     "latestArticles": "最新文章"

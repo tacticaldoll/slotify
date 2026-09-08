@@ -40,13 +40,19 @@ def main():
     for file_info in files_to_download:
         dest_path = os.path.join(VENDOR_DIR, file_info['dest'])
         print(f"Downloading {file_info['url']}...")
+        # Validate declarative transformations before download
+        for rw in file_info.get('rewrites', []):
+            if not isinstance(rw, dict) or not rw.get('from') or not rw.get('to'):
+                raise ValueError(f"Malformed rewrite rule in vendor.json for {file_info.get('dest')}: {rw}")
+
         try:
             content = download_file(file_info['url'])
-            # NOTE: MDI's upstream CSS already references its fonts as
-            # `url("../fonts/...woff2?v=...")`, which resolves correctly from
-            # static/vendor/css/ to static/vendor/fonts/. No URL rewrite is
-            # needed (the previous regex was an identity no-op); the file is
-            # stored verbatim and its bytes are pinned in the lockfile.
+            # Apply any declarative transformations defined in vendor.json
+            for rw in file_info.get('rewrites', []):
+                from_bytes = rw['from'].encode('utf-8')
+                to_bytes = rw['to'].encode('utf-8')
+                content = content.replace(from_bytes, to_bytes)
+
             with open(dest_path, 'wb') as f:
                 f.write(content)
         except Exception as e:

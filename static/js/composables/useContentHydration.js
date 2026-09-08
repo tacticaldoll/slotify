@@ -4,11 +4,13 @@
  */
 import { t } from '../i18n.js';
 import { useMermaid, loadMermaid } from './useMermaid.js';
+import { useKatex, loadKatex } from './useKatex.js';
 const { nextTick, onUnmounted } = Vue;
 
 export function useContentHydration() {
   const theme = Vuetify.useTheme();
   const { renderDiagrams } = useMermaid();
+  const { renderMath } = useKatex();
 
   // Deferred Mermaid render-check timer; cleared on unmount so a fast
   // navigation away from a post doesn't fire a stale warning against a
@@ -46,51 +48,74 @@ export function useContentHydration() {
     });
   };
 
-  const hydrateMermaid = async (containerId, onMermaidClick) => {
+  const hydrateFeature = async ({ containerId, featureFlag, selector, load, render }) => {
     await nextTick();
     const contentDiv = document.getElementById(containerId);
     if (!contentDiv) return;
 
-    // No diagrams on this page -> never fetch the (large) Mermaid bundle.
-    const elements = contentDiv.querySelectorAll('.mermaid');
+    // Feature flag guard: skip if feature is explicitly disabled in config
+    const features = (window.__SLOTIFY_CONFIG__ || {}).features || {};
+    if (features[featureFlag] === false) return;
+
+    // No target elements on this page -> never fetch assets
+    const elements = contentDiv.querySelectorAll(selector);
     if (!elements.length) return;
 
-    // Awaited, explicit load: Mermaid is lazy (see useMermaid.loadMermaid), so the
-    // global may not be ready yet. Awaiting it guarantees the first render fires
-    // once the library arrives, rather than silently leaving diagrams as raw text
-    // until some later trigger (e.g. a theme switch) happens to re-run this.
     try {
-      await loadMermaid();
+      await load();
     } catch (err) {
       console.error(err);
       return;
     }
-    // The container may have been swapped out during the download (fast nav away).
+
+    // Container may have been swapped out during download (fast nav away)
     if (!contentDiv.isConnected) return;
+    render(contentDiv, elements);
+  };
 
-    renderDiagrams(theme.current.value);
+  const hydrateMermaid = async (containerId, onMermaidClick) => {
+    await hydrateFeature({
+      containerId,
+      featureFlag: 'mermaid',
+      selector: '.mermaid',
+      load: loadMermaid,
+      render: (contentDiv, elements) => {
+        renderDiagrams(theme.current.value);
 
-    if (onMermaidClick) {
-      elements.forEach(el => {
-        el.style.cursor = 'zoom-in';
-        el.addEventListener('click', () => {
-          const svg = el.querySelector('svg');
-          if (svg) onMermaidClick(svg.outerHTML);
-        });
-      });
-    }
+        if (onMermaidClick) {
+          elements.forEach(el => {
+            el.style.cursor = 'zoom-in';
+            el.addEventListener('click', () => {
+              const svg = el.querySelector('svg');
+              if (svg) onMermaidClick(svg.outerHTML);
+            });
+          });
+        }
 
-    // Diagrams are present (we returned early otherwise); warn if any remain
-    // unrendered shortly after, surfacing a hydration or diagram-syntax problem.
-    if (mermaidCheckTimer) clearTimeout(mermaidCheckTimer);
-    mermaidCheckTimer = setTimeout(() => {
-      mermaidCheckTimer = null;
-      const pending = contentDiv.querySelectorAll('.mermaid:not([data-processed])').length;
-      if (pending > 0) {
-        console.warn('[Slotify] ' + pending + ' Mermaid diagram(s) did not render. ' +
-          'Verify content hydration and diagram syntax.');
+        // Diagrams are present; warn if any remain unrendered shortly after
+        if (mermaidCheckTimer) clearTimeout(mermaidCheckTimer);
+        mermaidCheckTimer = setTimeout(() => {
+          mermaidCheckTimer = null;
+          const pending = contentDiv.querySelectorAll('.mermaid:not([data-processed])').length;
+          if (pending > 0) {
+            console.warn('[Slotify] ' + pending + ' Mermaid diagram(s) did not render. ' +
+              'Verify content hydration and diagram syntax.');
+          }
+        }, 1200);
       }
-    }, 1200);
+    });
+  };
+
+  const hydrateMath = async (containerId) => {
+    await hydrateFeature({
+      containerId,
+      featureFlag: 'math',
+      selector: '.math',
+      load: loadKatex,
+      render: (contentDiv) => {
+        renderMath(contentDiv);
+      }
+    });
   };
 
   const hydrateCodeBlocks = (containerId) => {
@@ -152,7 +177,8 @@ export function useContentHydration() {
             ta.select();
             const ok = document.execCommand('copy');
             document.body.removeChild(ta);
-            if (ok) { showCopied(); } else { showFailed(new Error('execCommand copy returned false')); }
+            if (ok) showCopied();
+            else showFailed(new Error('execCommand copy returned false'));
           } catch (err) {
             showFailed(err);
           }
@@ -167,6 +193,7 @@ export function useContentHydration() {
   return {
     hydrateImages,
     hydrateMermaid,
+    hydrateMath,
     hydrateCodeBlocks
   };
 }

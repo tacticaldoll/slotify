@@ -105,6 +105,9 @@ enableRobotsTXT = true
     linkedin = "https://linkedin.com"
     facebook = "https://facebook.com"
     instagram = "https://instagram.com"
+  [params.features]
+    mermaid = true
+    math    = true
 
 # Markup Renderer Override (Opt-in)
 # The Slotify theme defaults to Hugo's safe renderer (unsafe = false).
@@ -113,3 +116,9 @@ enableRobotsTXT = true
   [markup.goldmark]
     [markup.goldmark.renderer]
       unsafe = true
+    [markup.goldmark.extensions]
+      [markup.goldmark.extensions.passthrough]
+        enable = true
+        [markup.goldmark.extensions.passthrough.delimiters]
+          block = [['\[', '\]'], ['$$', '$$']]
+          inline = [['\(', '\)'], ['$', '$']]
