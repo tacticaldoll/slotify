@@ -40,6 +40,11 @@ def main():
     for file_info in files_to_download:
         dest_path = os.path.join(VENDOR_DIR, file_info['dest'])
         print(f"Downloading {file_info['url']}...")
+        # Validate declarative transformations before download
+        for rw in file_info.get('rewrites', []):
+            if not isinstance(rw, dict) or not rw.get('from') or not rw.get('to'):
+                raise ValueError(f"Malformed rewrite rule in vendor.json for {file_info.get('dest')}: {rw}")
+
         try:
             content = download_file(file_info['url'])
             # Apply any declarative transformations defined in vendor.json

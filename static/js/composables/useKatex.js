@@ -61,7 +61,7 @@ export function useKatex() {
     const container = typeof target === 'string' ? document.getElementById(target) : target;
     if (!container) return;
 
-    const nodes = container.querySelectorAll('.math:not([data-processed]), .katex-render:not([data-processed])');
+    const nodes = container.querySelectorAll('.math:not([data-processed])');
     if (!nodes.length) return;
 
     nodes.forEach((el) => {

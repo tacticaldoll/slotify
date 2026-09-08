@@ -109,7 +109,7 @@ export function useContentHydration() {
     if (features.math === false) return;
 
     // No math formulas on this page -> never fetch KaTeX assets.
-    const elements = contentDiv.querySelectorAll('.math, .katex-render');
+    const elements = contentDiv.querySelectorAll('.math');
     if (!elements.length) return;
 
     try {
