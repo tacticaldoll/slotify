@@ -106,6 +106,7 @@ export function useKatex() {
       } catch (err) {
         console.warn('[Slotify] KaTeX render failed:', (err && err.message) || err);
         el.setAttribute('data-processed', 'error');
+        el.setAttribute('title', t('ui.mathError'));
       }
     });
   };
