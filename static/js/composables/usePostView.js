@@ -19,7 +19,7 @@ export function usePostView(containerId = 'hugo-content') {
   // Single-post data comes straight from the shared content resource. (Scroll-to-
   // top is handled globally by router.afterEach in router.js, so we don't re-scroll.)
   const { pageData, error, fetchData } = useContentResource();
-  const { hydrateImages, hydrateMermaid, hydrateCodeBlocks } = useContentHydration();
+  const { hydrateImages, hydrateMermaid, hydrateMath, hydrateCodeBlocks } = useContentHydration();
 
   // Lightbox state (image + arbitrary HTML content such as Mermaid diagrams).
   const lightboxOpen = ref(false);
@@ -44,6 +44,7 @@ export function usePostView(containerId = 'hugo-content') {
     if (pageData.value?.content) {
       hydrateImages(containerId, openLightbox);
       hydrateMermaid(containerId, openContentLightbox);
+      hydrateMath(containerId);
       hydrateCodeBlocks(containerId);
     }
   });

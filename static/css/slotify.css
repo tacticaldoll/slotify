@@ -1126,6 +1126,33 @@ body .rounded-pill {
     opacity: 0.85;
 }
 
+/* KaTeX Math Formula Support */
+.katex-display {
+    margin: 1.5rem 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: thin;
+    padding: 0.5rem 0;
+}
+
+.math.display {
+    display: block;
+    text-align: center;
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+.math.inline {
+    white-space: nowrap;
+}
+
+.math[data-processed="error"] {
+    color: rgb(var(--v-theme-error));
+    background: rgba(var(--v-theme-error), 0.08);
+    padding: 0.2rem 0.4rem;
+    border-radius: var(--radius-sm);
+}
+
 /* Universal Lightbox Architecture */
 body .lightbox-dialog {
     box-shadow: none;
