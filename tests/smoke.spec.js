@@ -211,7 +211,8 @@ test('post content math hydration renders KaTeX correctly without errors', async
   const katexDisplay = page.locator('.katex-display');
   await expect(katexDisplay.first()).toBeVisible();
 
-  // Assert that all math elements have been processed and none failed
+  // Assert that html has slotify-js class and all math elements have been processed
+  await expect(page.locator('html')).toHaveClass(/slotify-js/);
   await expect(page.locator('.math:not([data-processed])')).toHaveCount(0);
   await expect(page.locator('.math[data-processed="error"]')).toHaveCount(0);
 

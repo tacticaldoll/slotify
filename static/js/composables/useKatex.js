@@ -66,7 +66,10 @@ export function useKatex() {
 
     nodes.forEach((el) => {
       const formula = (el.dataset.math ?? el.textContent ?? '').trim();
-      if (!formula) return;
+      if (!formula) {
+        el.setAttribute('data-processed', 'empty');
+        return;
+      }
 
       const isDisplay =
         el.classList.contains('display') ||
@@ -83,6 +86,7 @@ export function useKatex() {
       } catch (err) {
         console.warn('[Slotify] KaTeX render failed:', (err && err.message) || err);
         el.setAttribute('data-processed', 'error');
+        el.setAttribute('role', 'alert');
         el.setAttribute('title', t('ui.mathError'));
         el.textContent = formula;
       }
