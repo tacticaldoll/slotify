@@ -1142,7 +1142,12 @@ body .rounded-pill {
     overflow-y: hidden;
 }
 
+.math:not([data-processed]) {
+    visibility: hidden;
+}
+
 .math.inline {
+    display: inline-block;
     max-width: 100%;
     overflow-x: auto;
     overflow-y: hidden;
