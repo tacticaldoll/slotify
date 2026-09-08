@@ -28,7 +28,8 @@
     "copyCode": "Copy",
     "copiedCode": "Copied!",
     "copyCodeFailed": "Error",
-    "mermaidError": "Diagram could not be rendered (syntax error)"
+    "mermaidError": "Diagram could not be rendered (syntax error)",
+    "mathError": "Formula could not be rendered (syntax error)"
   },
   "home": {
     "latestArticles": "Latest Articles"

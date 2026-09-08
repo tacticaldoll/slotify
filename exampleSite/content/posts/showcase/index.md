@@ -120,7 +120,34 @@ sequenceDiagram
     Router-->>User: Update View
 ```
 
-## 8. Slotify Slots (Extensibility)
+## 8. Mathematical Typesetting (KaTeX)
+
+The Slotify theme provides native, zero-dependency offline math typesetting via KaTeX. Formulas are extracted from Goldmark passthrough delimiters and hydrated lazily on-demand without any overhead on pages that do not use math.
+
+### 8.1 Inline Formulas
+
+Inline formulas can be written using single dollar delimiters `$..$` or LaTeX notation `\(..\)`. For instance, Euler's identity is $e^{i\pi} + 1 = 0$, Einstein's mass-energy equivalence is $E = mc^2$, and the standard normal distribution density is given by $f(x) = \frac{1}{\sigma \sqrt{2\pi}} e^{-\frac{1}{2}\left(\frac{x-\mu}{\sigma}\right)^2}$.
+
+### 8.2 Block & Display Formulas
+
+Display math can be rendered using double dollar delimiters `$$..$$` or LaTeX block notation `\[..\]`:
+
+$$
+\int_{-\infty}^{\infty} e^{-x^2} dx = \sqrt{\pi}
+$$
+
+Matrices and multi-line equations are also fully supported:
+
+$$
+\mathbf{X} = \begin{pmatrix}
+x_{11} & x_{12} & \cdots & x_{1n} \\
+x_{21} & x_{22} & \cdots & x_{2n} \\
+\vdots & \vdots & \ddots & \vdots \\
+x_{m1} & x_{m2} & \cdots & x_{mn}
+\end{pmatrix}
+$$
+
+## 9. Slotify Slots (Extensibility)
 
 Every region of the theme is an overridable **slot** — customize any part from
 your site root without forking. This very page renders through slots: the Table

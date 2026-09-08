@@ -196,3 +196,21 @@ test('post content hydration (code-copy / mermaid / images) raises no errors', a
   }
   expect(errors, `console errors:\n${errors.join('\n')}`).toEqual([]);
 });
+
+test('post content math hydration renders KaTeX correctly without errors', async ({ page }) => {
+  const errors = trackErrors(page);
+  await page.goto('/posts/showcase/');
+  await waitForMount(page);
+
+  // Assert that KaTeX rendered HTML elements exist
+  const katexHtml = page.locator('.katex-html');
+  await expect(katexHtml.first()).toBeVisible({ timeout: 10_000 });
+  expect(await katexHtml.count()).toBeGreaterThan(0);
+
+  // Assert that KaTeX display block is rendered
+  const katexDisplay = page.locator('.katex-display');
+  await expect(katexDisplay.first()).toBeVisible();
+
+  expect(errors, `console errors:\n${errors.join('\n')}`).toEqual([]);
+});
+
