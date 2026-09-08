@@ -1146,6 +1146,7 @@ body .rounded-pill {
     visibility: hidden;
 }
 
+/* Guard: preserves text baseline and prevents inline-block CSS 2.1 §10.8.1 overflow baseline displacement */
 .math.inline {
     display: inline;
 }
@@ -1155,6 +1156,11 @@ body .rounded-pill {
     background: rgba(var(--v-theme-error), 0.08);
     padding: 0.2rem 0.4rem;
     border-radius: var(--radius-sm);
+}
+
+.math[data-processed="error"] .math-error__title {
+    font-weight: 600;
+    margin-right: 0.35rem;
 }
 
 /* Universal Lightbox Architecture */

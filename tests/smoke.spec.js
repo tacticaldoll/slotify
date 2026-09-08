@@ -215,6 +215,7 @@ test('post content math hydration renders KaTeX correctly without errors', async
   await expect(page.locator('html')).toHaveClass(/slotify-js/);
   await expect(page.locator('.math:not([data-processed])')).toHaveCount(0);
   await expect(page.locator('.math[data-processed="error"]')).toHaveCount(0);
+  await expect(page.locator('.math[data-processed="empty"]')).toHaveCount(0);
 
   expect(errors, `console errors:\n${errors.join('\n')}`).toEqual([]);
 });
