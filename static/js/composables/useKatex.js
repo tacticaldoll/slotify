@@ -49,30 +49,10 @@ export function loadKatex() {
   return katexLoad;
 }
 
-/**
- * Strip LaTeX delimiter wrappers from string content.
- * @param {string} raw
- * @returns {string} clean LaTeX formula
- */
-function extractFormula(raw) {
-  const text = (raw || '').trim();
-  if (
-    (text.startsWith('\\(') && text.endsWith('\\)')) ||
-    (text.startsWith('\\[') && text.endsWith('\\]')) ||
-    (text.startsWith('$$') && text.endsWith('$$'))
-  ) {
-    return text.slice(2, -2).trim();
-  }
-  if (text.startsWith('$') && text.endsWith('$')) {
-    return text.slice(1, -1).trim();
-  }
-  return text;
-}
-
 export function useKatex() {
   /**
    * Render math formulas in the given content container.
-   * Targets .math elements emitted by Hugo's Goldmark passthrough or custom markup.
+   * Targets .math elements emitted by Hugo's Goldmark passthrough markup hooks.
    * @param {HTMLElement|string} target - container element or container id
    */
   const renderMath = (target) => {
@@ -85,21 +65,18 @@ export function useKatex() {
     if (!nodes.length) return;
 
     nodes.forEach((el) => {
-      const raw = el.dataset.math ?? el.textContent ?? '';
+      const formula = (el.dataset.math ?? el.textContent ?? '').trim();
+      if (!formula) return;
+
       const isDisplay =
         el.classList.contains('display') ||
         el.classList.contains('block') ||
-        el.tagName === 'DIV' ||
-        raw.trim().startsWith('$$') ||
-        raw.trim().startsWith('\\[');
-
-      const formula = extractFormula(raw);
-      if (!formula) return;
+        el.tagName === 'DIV';
 
       try {
         window.katex.render(formula, el, {
           displayMode: isDisplay,
-          throwOnError: false,
+          throwOnError: true,
           output: 'htmlAndMathml'
         });
         el.setAttribute('data-processed', 'true');
@@ -107,6 +84,7 @@ export function useKatex() {
         console.warn('[Slotify] KaTeX render failed:', (err && err.message) || err);
         el.setAttribute('data-processed', 'error');
         el.setAttribute('title', t('ui.mathError'));
+        el.textContent = formula;
       }
     });
   };

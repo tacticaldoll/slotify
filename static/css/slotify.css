@@ -1143,7 +1143,10 @@ body .rounded-pill {
 }
 
 .math.inline {
-    white-space: nowrap;
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    vertical-align: middle;
 }
 
 .math[data-processed="error"] {

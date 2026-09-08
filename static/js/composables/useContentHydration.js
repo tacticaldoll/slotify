@@ -53,6 +53,10 @@ export function useContentHydration() {
     const contentDiv = document.getElementById(containerId);
     if (!contentDiv) return;
 
+    // Feature flag guard: skip if mermaid is explicitly disabled in config
+    const features = (window.__SLOTIFY_CONFIG__ || {}).features || {};
+    if (features.mermaid === false) return;
+
     // No diagrams on this page -> never fetch the (large) Mermaid bundle.
     const elements = contentDiv.querySelectorAll('.mermaid');
     if (!elements.length) return;

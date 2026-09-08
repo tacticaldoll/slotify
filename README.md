@@ -106,6 +106,8 @@ Set under `[params]`; all are optional and these are the defaults. This table is
 | `paginationMode` | `client` *(default)* · `static` | `client` ships the whole feed and slices it in-memory (instant page changes, no `/page/N/` URLs); `static` uses Hugo's build-time paginator — a real HTML+JSON document per `/page/N/` the SPA navigates between (crawlable, deep-linkable, scales to large blogs). |
 | `defaultColorMode` | `light` *(default)* · `dark` · `auto` | Colour mode for a first-time visitor; `auto` follows the OS `prefers-color-scheme`. A stored user choice always wins. |
 | `scriptBundle` | path or URL — *(unset)* | Boot the SPA from one prebuilt bundle instead of the default ES-module graph. Opt-in; the theme ships no bundler. Deep dive: **Bundling & Vendor** below. |
+| `features.mermaid` | `true` *(default)* · `false` | Enable or disable Mermaid diagram hydration and lazy bundle loading. |
+| `features.math` | `true` *(default)* · `false` | Enable or disable KaTeX math formula hydration and lazy asset loading. |
 
 The default **personality** is not a param — it is the first key of the palette, so reorder `data/theme-palette.json` (or `[params.palette]`) to change it.
 
