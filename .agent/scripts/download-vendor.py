@@ -44,9 +44,12 @@ def main():
             content = download_file(file_info['url'])
             # NOTE: MDI's upstream CSS already references its fonts as
             # `url("../fonts/...woff2?v=...")`, which resolves correctly from
-            # static/vendor/css/ to static/vendor/fonts/. No URL rewrite is
-            # needed (the previous regex was an identity no-op); the file is
-            # stored verbatim and its bytes are pinned in the lockfile.
+            # static/vendor/css/ to static/vendor/fonts/. For KaTeX CSS,
+            # upstream references `url(fonts/KaTeX_*.woff2)`, so rewrite to
+            # `url(../fonts/KaTeX_*.woff2)` to match the directory layout.
+            if file_info['dest'] == 'css/katex.min.css':
+                content = content.replace(b'url(fonts/', b'url(../fonts/')
+
             with open(dest_path, 'wb') as f:
                 f.write(content)
         except Exception as e:
