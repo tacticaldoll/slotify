@@ -86,9 +86,19 @@ export function useKatex() {
       } catch (err) {
         console.warn('[Slotify] KaTeX render failed:', (err && err.message) || err);
         el.setAttribute('data-processed', 'error');
-        el.setAttribute('role', 'alert');
-        el.setAttribute('title', t('ui.mathError'));
-        el.textContent = formula;
+        el.textContent = '';
+
+        const notice = document.createElement(isDisplay ? 'p' : 'span');
+        notice.className = 'math-error__title';
+        notice.setAttribute('role', 'alert');
+        notice.textContent = t('ui.mathError');
+
+        const code = document.createElement('code');
+        code.className = 'math-error__source';
+        code.textContent = formula;
+
+        el.appendChild(notice);
+        el.appendChild(code);
       }
     });
   };
