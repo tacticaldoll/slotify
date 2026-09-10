@@ -3,6 +3,7 @@
  * Composable for managing Fuse.js search logic and index loading.
  */
 const { ref, watch } = Vue;
+const { useRoute } = VueRouter;
 // `fuse` resolves via the import map in baseof.html (data/vendor.json -> the
 // Fuse entry's `specifier`), so the vendored file is swappable without editing
 // this import. The map is emitted before any module script loads.
@@ -13,7 +14,9 @@ import { usePageTitle } from './usePageTitle.js';
 import { t } from '../i18n.js';
 
 export function useSearch() {
-  const searchQuery = ref('');
+  const route = useRoute();
+  const initialQuery = (route?.query?.q ? String(route.query.q) : new URLSearchParams(window.location.search).get('q')) || '';
+  const searchQuery = ref(initialQuery);
   const results = ref([]);
   // The Search page identity is a static chrome label. Bind it declaratively at
   // mount (a getter so it follows a UI-language switch) — independent of whether
@@ -42,8 +45,21 @@ export function useSearch() {
     const { data, error } = await fetchIndex();
     if (!error && data) {
       initFuse(data);
+      if (searchQuery.value.trim()) {
+        results.value = fuse.search(searchQuery.value.trim());
+      }
     }
   };
+
+  // Synchronize route query changes (e.g. back/forward navigation or link transitions)
+  if (route) {
+    watch(() => route.query?.q, (newQ) => {
+      const q = typeof newQ === 'string' ? newQ : '';
+      if (q !== searchQuery.value) {
+        searchQuery.value = q;
+      }
+    });
+  }
 
   // Real-time fuzzy search
   watch(searchQuery, (newQuery) => {

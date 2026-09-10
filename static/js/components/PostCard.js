@@ -97,17 +97,17 @@ export default {
       <!-- LIST: compact result row; chips can highlight the active taxonomy term. -->
       <v-card-item v-else class="pa-6">
         <!-- Result Title -->
-        <v-card-title
-          class="text-h6 text-primary font-weight-bold mb-1"
-          v-html="highlightedTitle"
-        ></v-card-title>
+        <v-card-title class="text-h6 text-primary font-weight-bold mb-1">
+          <span v-if="highlightQuery" v-html="highlightedTitle"></span>
+          <template v-else>{{ item.title }}</template>
+        </v-card-title>
 
         <!-- Result Summary (summary is the canonical card field from
              func/card-data.html; description is an optional fallback) -->
-        <v-card-text
-          class="pa-0 mb-3 text-body-2 text-medium-emphasis"
-          v-html="highlightedSummary"
-        ></v-card-text>
+        <v-card-text class="pa-0 mb-3 text-body-2 text-medium-emphasis">
+          <span v-if="highlightQuery" v-html="highlightedSummary"></span>
+          <template v-else>{{ cardSummary(item) || t('ui.readMore') }}</template>
+        </v-card-text>
 
         <!-- Result Meta. Chips sit above the card's stretched link (lifted by
              .base-surface--link .v-chip), so they navigate on their own; the

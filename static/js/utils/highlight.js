@@ -4,6 +4,13 @@
  * Strictly pure functions with no DOM mutations or side effects (SKILL.md §3).
  */
 
+const AMP_RE = /&/g;
+const LT_RE = /</g;
+const GT_RE = />/g;
+const QUOT_RE = new RegExp('"', 'g');
+const APOS_RE = new RegExp("'", 'g');
+const REGEX_SPECIAL_RE = /[.*+?^${}()|[\]\\]/g;
+
 /**
  * Escapes raw HTML special characters to prevent XSS.
  * @param {string} text - Raw unescaped string
@@ -12,11 +19,11 @@
 export function escapeHtml(text) {
   if (!text || typeof text !== 'string') return '';
   return text
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(new RegExp('"', 'g'), '&quot;')
-    .replace(new RegExp("'", 'g'), '&#039;');
+    .replace(AMP_RE, '&amp;')
+    .replace(LT_RE, '&lt;')
+    .replace(GT_RE, '&gt;')
+    .replace(QUOT_RE, '&quot;')
+    .replace(APOS_RE, '&#039;');
 }
 
 /**
@@ -26,7 +33,7 @@ export function escapeHtml(text) {
  */
 export function escapeRegex(text) {
   if (!text || typeof text !== 'string') return '';
-  return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return text.replace(REGEX_SPECIAL_RE, '\\$&');
 }
 
 /**
@@ -64,6 +71,9 @@ export function highlightText(text, query) {
   let match;
 
   while ((match = regex.exec(text)) !== null) {
+    if (regex.lastIndex === match.index) {
+      regex.lastIndex++;
+    }
     const matchedText = match[0];
     const matchIndex = match.index;
 
