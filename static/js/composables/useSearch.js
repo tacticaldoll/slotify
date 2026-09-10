@@ -2,7 +2,7 @@
  * useSearch.js
  * Composable for managing Fuse.js search logic and index loading.
  */
-const { ref, watch } = Vue;
+const { ref, watch, onUnmounted } = Vue;
 const { useRouter, useRoute } = VueRouter;
 // `fuse` resolves via the import map in baseof.html (data/vendor.json -> the
 // Fuse entry's `specifier`), so the vendored file is swappable without editing
@@ -31,6 +31,7 @@ export function useSearch() {
   // the index loads, so a failed fetch never leaves the previous route's title.
   usePageTitle(() => t('menu.search'));
   let fuse = null;
+  let replaceTimer = null;
 
   // 1. Initialize API Composable
   const { loading: loadingIndex, error, execute: fetchIndex } = useApi(fetchSearchIndex);
@@ -73,13 +74,24 @@ export function useSearch() {
     }
   });
 
-  // Real-time fuzzy search and URL write-back
+  // Real-time fuzzy search and debounced URL write-back
   watch(searchQuery, (newQuery) => {
-    runSearch(newQuery);
-    const q = newQuery.trim();
+    const raw = typeof newQuery === 'string' ? newQuery : '';
+    runSearch(raw);
+    const q = raw.trim();
     if (q !== readQuery(route.query.q)) {
-      router.replace({ query: q ? { q } : {} });
+      clearTimeout(replaceTimer);
+      const delay = q ? 200 : 0;
+      replaceTimer = setTimeout(() => {
+        if (q !== readQuery(route.query.q)) {
+          router.replace({ query: q ? { q } : {} });
+        }
+      }, delay);
     }
+  });
+
+  onUnmounted(() => {
+    clearTimeout(replaceTimer);
   });
 
   return {
