@@ -5,6 +5,23 @@ All notable changes to the Slotify Hugo theme will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.1] - 2026-09-10
+
+### Added
+- **Search Keyword Highlighting**: Interactive search keyword highlighting across result titles and summaries powered by `highlightText` utility and theme-harmonious `.search-highlight` styling.
+- **Post Publication Date in PostMeta**: Display post publication date with calendar icon alongside author, reading time, and word count in a restructured two-row vertical hierarchy.
+- **Bidirectional Search URL Synchronization**: Query keyword synchronization to and from URL route query (`?q=`) via debounced `router.replace`, supporting shareable search links and browser history navigation.
+- **Automated Smoke Tests**: Playwright smoke test coverage for keyword highlighting mark insertion, search query clearing, and URL settlement to `/search/`.
+
+### Changed
+- **Taxonomy Predicates Convergence**: Extracted `hasSeries` and `hasTags` predicates in `contentFields.js` and composed `hasTaxonomy`, converging inline taxonomy checks across `PostCard.js` and `PostMeta.js`.
+- **Release Governance Documentation**: Codified release-centric integration branching (`release/<version>`), strict squash merge commit standards, late version bumping, and body-less release commits on `main` in `CONTRIBUTING.md`.
+
+### Fixed
+- **Search Highlight HTML Entity Escaping**: Prevented HTML entity corruption and nested matching by ordering query terms in descending length order.
+- **Debounce Timer Hoisting**: Hoisted timer cancellation outside conditional guards in `useSearch.js` to eliminate query resurrection during clear and back navigation.
+- **Vue Prop Reactivity Invariant**: Centralized route query reading via `readQuery` utility and guarded write-back synchronization to maintain single source of truth.
+
 ## [0.2.0] - 2026-09-09
 
 ### Added
@@ -41,5 +58,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Air-Gapped Vendor Bundle**: Zero runtime CDN dependencies; all scripts, stylesheets, and webfonts bundled locally and verified by hash.
 - **Enterprise Architecture Audits**: Built-in pre-commit hooks enforcing line endings, 2-space indentation, lifecycle rules, and slot contracts.
 
+[0.2.1]: https://github.com/tacticaldoll/slotify/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/tacticaldoll/slotify/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/tacticaldoll/slotify/releases/tag/v0.1.0
