@@ -1431,12 +1431,22 @@ body .lightbox-content-scrollable svg {
     transform: translateY(0);
 }
 
+/* Search Keyword Highlighting */
+.search-highlight {
+    background: color-mix(in srgb, rgb(var(--v-theme-primary)) 20%, transparent);
+    color: rgb(var(--v-theme-primary));
+    font-weight: 700;
+    padding: 2px 4px;
+    border-radius: 4px;
+}
+
 /* Accessibility Forced Colors Override */
 @media (forced-colors: active) {
     body .v-chip,
     body .v-btn,
     .markdown-body table,
-    .markdown-body .code-copy-btn {
+    .markdown-body .code-copy-btn,
+    .search-highlight {
         border: 1px solid CanvasText;
     }
 }

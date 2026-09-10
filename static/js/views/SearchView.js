@@ -64,6 +64,7 @@ export default {
             :items="flatResults"
             variant="list"
             :delay-step="0.05"
+            :highlight-query="searchQuery"
           ></post-list>
         </template>
 
