@@ -13,7 +13,10 @@ import BaseChip from './BaseChip.js';
 import BaseSurface from './BaseSurface.js';
 import { t } from '../i18n.js';
 import { slugify } from '../utils/slugify.js';
-import { hasDisplayDate, cardSummary } from '../utils/contentFields.js';
+import { hasDisplayDate, cardSummaryText, hasSeries, hasTags } from '../utils/contentFields.js';
+import { highlightText } from '../utils/highlight.js';
+
+const { computed } = Vue;
 
 export default {
   name: 'PostCard',
@@ -28,7 +31,9 @@ export default {
     // When rendered inside a taxonomy term list ('list' variant), identifies the
     // active term so its matching chip renders selected and non-clickable.
     // Shape: { type: 'tag'|'series', slug: string }.
-    activeTaxonomy: { type: Object, default: null }
+    activeTaxonomy: { type: Object, default: null },
+    // Search keyword to highlight in result title and summary ('list' variant).
+    highlightQuery: { type: String, default: '' }
   },
   template: `
     <base-surface
@@ -65,7 +70,7 @@ export default {
               <!-- Chips sit above the card's stretched link (lifted by
                    .base-surface--link .v-chip), so they navigate on their own. -->
               <base-chip
-                v-if="item.series && item.series.length"
+                v-if="hasSeries(item)"
                 type="series"
                 :title="item.series[0]"
               ></base-chip>
@@ -73,10 +78,10 @@ export default {
           </v-card-item>
 
           <v-card-text class="pa-8 pt-2 pb-6 flex-grow-1 text-body-1 text-medium-emphasis">
-            {{ cardSummary(item) || t('ui.readMore') }}
+            {{ cardSummaryText(item, t('ui.readMore')) }}
           </v-card-text>
 
-          <div class="pa-8 pt-0 d-flex flex-wrap align-center" v-if="item.tags && item.tags.length">
+          <div class="pa-8 pt-0 d-flex flex-wrap align-center" v-if="hasTags(item)">
             <!-- Tags (Small & Subtle) -->
             <base-chip
               v-for="tag in item.tags.slice(0, 5)"
@@ -93,13 +98,15 @@ export default {
       <v-card-item v-else class="pa-6">
         <!-- Result Title -->
         <v-card-title class="text-h6 text-primary font-weight-bold mb-1">
-          {{ item.title }}
+          <span v-if="highlightQuery" v-html="highlightedTitle"></span>
+          <template v-else>{{ item.title }}</template>
         </v-card-title>
 
         <!-- Result Summary (summary is the canonical card field from
              func/card-data.html; description is an optional fallback) -->
         <v-card-text class="pa-0 mb-3 text-body-2 text-medium-emphasis">
-          {{ cardSummary(item) || t('ui.readMore') }}
+          <span v-if="highlightQuery" v-html="highlightedSummary"></span>
+          <template v-else>{{ cardSummaryText(item, t('ui.readMore')) }}</template>
         </v-card-text>
 
         <!-- Result Meta. Chips sit above the card's stretched link (lifted by
@@ -112,7 +119,7 @@ export default {
             </span>
           </v-card-subtitle>
           <base-chip
-            v-if="item.series && item.series.length"
+            v-if="hasSeries(item)"
             type="series"
             :title="item.series[0]"
             size="small"
@@ -139,6 +146,21 @@ export default {
       return !!a && a.type === type && slugify(value) === a.slug;
     };
 
-    return { t, isActiveTerm, hasDisplayDate, cardSummary };
+    const highlightedTitle = computed(() => highlightText(props.item.title, props.highlightQuery));
+    const highlightedSummary = computed(() => {
+      const summary = cardSummaryText(props.item, t('ui.readMore'));
+      return highlightText(summary, props.highlightQuery);
+    });
+
+    return {
+      t,
+      isActiveTerm,
+      hasDisplayDate,
+      cardSummaryText,
+      hasSeries,
+      hasTags,
+      highlightedTitle,
+      highlightedSummary
+    };
   }
 };

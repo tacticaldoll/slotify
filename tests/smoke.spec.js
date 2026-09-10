@@ -220,3 +220,33 @@ test('post content math hydration renders KaTeX correctly without errors', async
   expect(errors, `console errors:\n${errors.join('\n')}`).toEqual([]);
 });
 
+test('search keyword highlighting wraps query terms in search-highlight marks', async ({ page }) => {
+  const errors = trackErrors(page);
+  await page.goto('/search/?q=quick');
+  await waitForMount(page);
+
+  // Assert that search-highlight mark elements exist and contain the query keyword
+  const highlights = page.locator('.search-highlight');
+  await expect(highlights.first()).toBeVisible({ timeout: 10_000 });
+  expect(await highlights.count()).toBeGreaterThan(0);
+  await expect(highlights.first()).toHaveText(/quick/i);
+
+  expect(errors, `console errors:\n${errors.join('\n')}`).toEqual([]);
+});
+
+test('clearing search field resets query and raises no console errors', async ({ page }) => {
+  const errors = trackErrors(page);
+  await page.goto('/search/?q=quick');
+  await waitForMount(page);
+
+  // Clear icon appears inside the text field when populated
+  const clearBtn = page.locator('.v-field__clearable .v-icon, [aria-label*="clear" i]').first();
+  await expect(clearBtn).toBeVisible({ timeout: 10_000 });
+  await clearBtn.click();
+
+  // Results and highlights should be cleared, and URL should settle to /search/
+  await expect(page).toHaveURL(/\/search\/?$/);
+  await expect(page.locator('.search-highlight')).toHaveCount(0);
+  expect(errors, `console errors:\n${errors.join('\n')}`).toEqual([]);
+});
+
