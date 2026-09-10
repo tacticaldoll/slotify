@@ -35,7 +35,17 @@ export function cardSummaryText(item, fallback = '') {
   return cardSummary(item) || fallback;
 }
 
+/** True when an item has series terms worth rendering. */
+export function hasSeries(item) {
+  return !!(item && item.series && item.series.length);
+}
+
+/** True when an item has tag terms worth rendering. */
+export function hasTags(item) {
+  return !!(item && item.tags && item.tags.length);
+}
+
 /** True when an item has taxonomy terms (series or tags) worth rendering. */
 export function hasTaxonomy(item) {
-  return !!(item && ((item.series && item.series.length) || (item.tags && item.tags.length)));
+  return hasSeries(item) || hasTags(item);
 }

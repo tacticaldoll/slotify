@@ -7,6 +7,9 @@
 const AMP_RE = /&/g;
 const LT_RE = /</g;
 const GT_RE = />/g;
+// new RegExp is used for QUOT_RE and APOS_RE instead of literal /"/g and /'/g
+// because .agent/scripts/check-indent.py's blank_noncode tokenizer lacks regex
+// literal states and treats bare quote characters inside literals as strings.
 const QUOT_RE = new RegExp('"', 'g');
 const APOS_RE = new RegExp("'", 'g');
 const REGEX_SPECIAL_RE = /[.*+?^${}()|[\]\\]/g;

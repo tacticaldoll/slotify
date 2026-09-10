@@ -13,7 +13,7 @@ import BaseChip from './BaseChip.js';
 import BaseSurface from './BaseSurface.js';
 import { t } from '../i18n.js';
 import { slugify } from '../utils/slugify.js';
-import { hasDisplayDate, cardSummaryText } from '../utils/contentFields.js';
+import { hasDisplayDate, cardSummaryText, hasSeries, hasTags } from '../utils/contentFields.js';
 import { highlightText } from '../utils/highlight.js';
 
 const { computed } = Vue;
@@ -70,7 +70,7 @@ export default {
               <!-- Chips sit above the card's stretched link (lifted by
                    .base-surface--link .v-chip), so they navigate on their own. -->
               <base-chip
-                v-if="item.series && item.series.length"
+                v-if="hasSeries(item)"
                 type="series"
                 :title="item.series[0]"
               ></base-chip>
@@ -81,7 +81,7 @@ export default {
             {{ cardSummaryText(item, t('ui.readMore')) }}
           </v-card-text>
 
-          <div class="pa-8 pt-0 d-flex flex-wrap align-center" v-if="item.tags && item.tags.length">
+          <div class="pa-8 pt-0 d-flex flex-wrap align-center" v-if="hasTags(item)">
             <!-- Tags (Small & Subtle) -->
             <base-chip
               v-for="tag in item.tags.slice(0, 5)"
@@ -119,7 +119,7 @@ export default {
             </span>
           </v-card-subtitle>
           <base-chip
-            v-if="item.series && item.series.length"
+            v-if="hasSeries(item)"
             type="series"
             :title="item.series[0]"
             size="small"
@@ -157,6 +157,8 @@ export default {
       isActiveTerm,
       hasDisplayDate,
       cardSummaryText,
+      hasSeries,
+      hasTags,
       highlightedTitle,
       highlightedSummary
     };
