@@ -31,7 +31,9 @@ export default {
     totalPages: { type: Number, default: 1 },
     // null = responsive: PaginationControl picks the count per breakpoint.
     // A number pins it. Passed straight through.
-    totalVisible: { type: Number, default: null }
+    totalVisible: { type: Number, default: null },
+    // Search keyword passed through to PostCard.
+    highlightQuery: { type: String, default: '' }
   },
   emits: ['update:page', 'change'],
   template: `
@@ -41,6 +43,7 @@ export default {
           :item="item"
           :variant="variant"
           :active-taxonomy="activeTaxonomy"
+          :highlight-query="highlightQuery"
         ></post-card>
       </template>
     </animated-list>
