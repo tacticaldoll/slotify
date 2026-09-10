@@ -10,10 +10,18 @@ Welcome to the Slotify contributor guide. To ensure long-term maintainability an
 3. **Feature Development Mandate**: Any new features, UI components, HTML blocks, or Markdown rendering logic **MUST** be demonstrated in the showcase post `exampleSite/content/posts/showcase/index.md` (and, for slot/event features, a matching override under `exampleSite/layouts/partials/slots/`).
 4. **Living Documentation**: The `showcase/index.md` post serves as the definitive "living documentation" and baseline test for the theme. If a feature is not demonstrated there, the development is considered INCOMPLETE.
 
-### Release-Only `main` Branch
-- **Core Principle**: The `main` branch follows a strict **"release only"** commit style.
-- **Workflow**: All active development must occur on feature branches. Do not push micro-commits or work-in-progress code directly to `main`.
-- **Merge Strategy**: When merging into `main`, use **Squash and Merge** or fast-forward release commits.
+### Release-Centric Branching & Integration
+- **Integration Branch (`release/<version>`)**: Slotify adopts a release-centric integration workflow. Active development occurs on feature branches branched off from and targeting the current release branch (e.g., `release/0.2.1`).
+- **Release-Only `main` Branch**: The `main` branch follows a strict **"release only"** policy. Direct commits and micro-commits to `main` are strictly prohibited.
+- **PR Squash Commit Standard (No Sequence Suffix)**:
+  - When squash-merging a feature PR into `release/<version>`, the commit subject MUST follow the Conventional Commits format and MUST NOT include GitHub's auto-generated sequence suffix (e.g., strip `(#14)`).
+  - The commit body MUST detail the implementation rationale and technical context (wrapped at 72 characters).
+  - The PR tracking URL MUST be placed at the bottom of the body in the format: `Ref: https://github.com/tacticaldoll/slotify/pull/<N>`.
+- **Version Bump Protocol**:
+  - Individual feature PRs MUST NOT bump the version.
+  - Version bumping across `package.json`, `package-lock.json`, `hugo.toml`, and `CHANGELOG.md` is executed as the single final commit on `release/<version>` once all planned PRs have been reviewed and merged.
+- **Release Merge into `main`**:
+  - Merging `release/<version>` into `main` is performed as a single, body-less release commit formatted as `chore(release): <version>`, tagged with `v<version>`.
 
 ### Commit Log Standard (Conventional Commits)
 All commits MUST follow the [Conventional Commits](https://www.conventionalcommits.org/) specification. A non-compliant commit message is grounds for rejection at code review.
