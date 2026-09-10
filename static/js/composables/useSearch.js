@@ -13,9 +13,16 @@ import { useApi } from './useApi.js';
 import { usePageTitle } from './usePageTitle.js';
 import { t } from '../i18n.js';
 
+/** Normalizes a route query parameter into a single string (handling repeated array params). */
+const readQuery = (q) => {
+  if (typeof q === 'string') return q;
+  if (Array.isArray(q) && typeof q[0] === 'string') return q[0];
+  return '';
+};
+
 export function useSearch() {
   const route = useRoute();
-  const initialQuery = (route?.query?.q ? String(route.query.q) : new URLSearchParams(window.location.search).get('q')) || '';
+  const initialQuery = readQuery(route?.query?.q);
   const searchQuery = ref(initialQuery);
   const results = ref([]);
   // The Search page identity is a static chrome label. Bind it declaratively at
@@ -41,33 +48,33 @@ export function useSearch() {
     });
   };
 
+  const runSearch = (query) => {
+    if (!fuse || !query || !query.trim()) {
+      results.value = [];
+      return;
+    }
+    results.value = fuse.search(query.trim());
+  };
+
   const loadSearchIndex = async () => {
     const { data, error } = await fetchIndex();
     if (!error && data) {
       initFuse(data);
-      if (searchQuery.value.trim()) {
-        results.value = fuse.search(searchQuery.value.trim());
-      }
+      runSearch(searchQuery.value);
     }
   };
 
   // Synchronize route query changes (e.g. back/forward navigation or link transitions)
-  if (route) {
-    watch(() => route.query?.q, (newQ) => {
-      const q = typeof newQ === 'string' ? newQ : '';
-      if (q !== searchQuery.value) {
-        searchQuery.value = q;
-      }
-    });
-  }
+  watch(() => route.query.q, (newQ) => {
+    const q = readQuery(newQ);
+    if (q !== searchQuery.value) {
+      searchQuery.value = q;
+    }
+  });
 
   // Real-time fuzzy search
   watch(searchQuery, (newQuery) => {
-    if (!fuse || !newQuery.trim()) {
-      results.value = [];
-      return;
-    }
-    results.value = fuse.search(newQuery.trim());
+    runSearch(newQuery);
   });
 
   return {

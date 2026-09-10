@@ -27,7 +27,16 @@ export function cardSummary(item) {
   return (item && (item.summary || item.description)) || '';
 }
 
+/**
+ * Resolves the display text for a card summary, falling back to a localized
+ * string when no summary or description exists.
+ */
+export function cardSummaryText(item, fallback = '') {
+  return cardSummary(item) || fallback;
+}
+
 /** True when an item has taxonomy terms (series or tags) worth rendering. */
 export function hasTaxonomy(item) {
   return !!(item && ((item.series && item.series.length) || (item.tags && item.tags.length)));
 }
+

@@ -432,7 +432,7 @@ To ensure the SPA theme renders your content correctly, you MUST follow these di
 
 Since this is an SPA, the theme requires specific "shell" pages to exist in your `content` directory for the search and about routes to function. After a clean install, you MUST copy these from the `exampleSite`:
 
-1.  **Search Page**: Create `content/search/_index.md` with `layout: single`. This tells Hugo to generate the search index.
+1.  **Search Page**: Create `content/search/_index.md` with `layout: single`. This tells Hugo to generate the search index. The search route supports keyword deep linking and bookmarking via the `?q=<keyword>` query parameter.
 2.  **About Page**: Create `content/about.md`. This provides the data for the `/about` route.
 3.  **Homepage Content**: Create `content/_index.md` to define the site-wide title and metadata for the home route.
 4.  **Section Index**: Create `content/posts/_index.md` to define the metadata for the posts collection.
