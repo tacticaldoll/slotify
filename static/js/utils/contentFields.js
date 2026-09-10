@@ -39,4 +39,3 @@ export function cardSummaryText(item, fallback = '') {
 export function hasTaxonomy(item) {
   return !!(item && ((item.series && item.series.length) || (item.tags && item.tags.length)));
 }
-
