@@ -1,5 +1,5 @@
 import { t } from '../i18n.js';
-import { hasDisplayDate } from '../utils/contentFields.js';
+import { hasDisplayDate, hasTaxonomy } from '../utils/contentFields.js';
 import BaseChip from './BaseChip.js';
 
 export default {
@@ -34,7 +34,7 @@ export default {
 
       <!-- Row 2: Taxonomy chips (Series, Tags) -->
       <div
-        v-if="(pageData.series && pageData.series.length) || (pageData.tags && pageData.tags.length)"
+        v-if="hasTaxonomy(pageData)"
         class="d-flex align-center flex-wrap mt-3"
       >
         <template v-if="pageData.series && pageData.series.length">
@@ -60,6 +60,6 @@ export default {
     </div>
   `,
   setup() {
-    return { t, hasDisplayDate };
+    return { t, hasDisplayDate, hasTaxonomy };
   }
 };

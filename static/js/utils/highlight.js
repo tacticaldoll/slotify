@@ -31,8 +31,9 @@ export function escapeRegex(text) {
 
 /**
  * Highlights occurrences of query within text.
- * Safely escapes input text first, then wraps matching query terms
- * in `<mark class="search-highlight">...</mark>`.
+ * Matches terms against raw text (longest first) and wraps matches in
+ * `<mark class="search-highlight">...</mark>`, escaping all segments to
+ * ensure XSS safety without corrupting HTML entities.
  *
  * @param {string} text - Raw input text
  * @param {string} query - Search term to highlight
@@ -40,20 +41,43 @@ export function escapeRegex(text) {
  */
 export function highlightText(text, query) {
   if (!text || typeof text !== 'string') return '';
-  const escapedText = escapeHtml(text);
   if (!query || typeof query !== 'string' || !query.trim()) {
-    return escapedText;
+    return escapeHtml(text);
   }
 
-  const terms = query
+  const rawTerms = query
     .trim()
     .split(/\s+/)
-    .filter(Boolean)
-    .map(escapeHtml)
-    .map(escapeRegex);
+    .filter(Boolean);
 
-  if (terms.length === 0) return escapedText;
+  // Deduplicate and sort by descending length so longer terms match before substrings
+  const uniqueTerms = Array.from(new Set(rawTerms))
+    .sort((a, b) => b.length - a.length);
 
-  const regex = new RegExp(`(${terms.join('|')})`, 'gi');
-  return escapedText.replace(regex, '<mark class="search-highlight">$1</mark>');
+  if (uniqueTerms.length === 0) return escapeHtml(text);
+
+  const pattern = uniqueTerms.map(escapeRegex).join('|');
+  const regex = new RegExp(pattern, 'gi');
+
+  let result = '';
+  let lastIndex = 0;
+  let match;
+
+  while ((match = regex.exec(text)) !== null) {
+    const matchedText = match[0];
+    const matchIndex = match.index;
+
+    if (matchIndex > lastIndex) {
+      result += escapeHtml(text.slice(lastIndex, matchIndex));
+    }
+
+    result += `<mark class="search-highlight">${escapeHtml(matchedText)}</mark>`;
+    lastIndex = matchIndex + matchedText.length;
+  }
+
+  if (lastIndex < text.length) {
+    result += escapeHtml(text.slice(lastIndex));
+  }
+
+  return result;
 }

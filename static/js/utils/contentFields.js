@@ -26,3 +26,8 @@ export function hasDisplayDate(item) {
 export function cardSummary(item) {
   return (item && (item.summary || item.description)) || '';
 }
+
+/** True when an item has taxonomy terms (series or tags) worth rendering. */
+export function hasTaxonomy(item) {
+  return !!(item && ((item.series && item.series.length) || (item.tags && item.tags.length)));
+}
