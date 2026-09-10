@@ -26,3 +26,26 @@ export function hasDisplayDate(item) {
 export function cardSummary(item) {
   return (item && (item.summary || item.description)) || '';
 }
+
+/**
+ * Resolves the display text for a card summary, falling back to a localized
+ * string when no summary or description exists.
+ */
+export function cardSummaryText(item, fallback = '') {
+  return cardSummary(item) || fallback;
+}
+
+/** True when an item has series terms worth rendering. */
+export function hasSeries(item) {
+  return !!(item && item.series && item.series.length);
+}
+
+/** True when an item has tag terms worth rendering. */
+export function hasTags(item) {
+  return !!(item && item.tags && item.tags.length);
+}
+
+/** True when an item has taxonomy terms (series or tags) worth rendering. */
+export function hasTaxonomy(item) {
+  return hasSeries(item) || hasTags(item);
+}
