@@ -244,7 +244,8 @@ test('clearing search field resets query and raises no console errors', async ({
   await expect(clearBtn).toBeVisible({ timeout: 10_000 });
   await clearBtn.click();
 
-  // Results and highlights should be cleared
+  // Results and highlights should be cleared, and URL should settle to /search/
+  await expect(page).toHaveURL(/\/search\/?$/);
   await expect(page.locator('.search-highlight')).toHaveCount(0);
   expect(errors, `console errors:\n${errors.join('\n')}`).toEqual([]);
 });

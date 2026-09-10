@@ -78,9 +78,9 @@ export function useSearch() {
   watch(searchQuery, (newQuery) => {
     const raw = typeof newQuery === 'string' ? newQuery : '';
     runSearch(raw);
+    clearTimeout(replaceTimer);
     const q = raw.trim();
     if (q !== readQuery(route.query.q)) {
-      clearTimeout(replaceTimer);
       const delay = q ? 200 : 0;
       replaceTimer = setTimeout(() => {
         if (q !== readQuery(route.query.q)) {
